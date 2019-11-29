@@ -1,0 +1,149 @@
+---
+title: "EDAV Fall 2019 PSet 5, part A"
+author: "Dhananjay Deshpande, Meenakshi Zutshi"
+output: html_document
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
+```
+
+This assignment is designed to help you get started on the final project. Be sure to review the final project instructions (https://edav.info/project.html), in particular the new section on reproducible workflow (https://edav.info/project.html#reproducible-workflow), which summarizes principles that we've discussed in class.
+    
+### 1. The Team
+
+[2 points]
+
+a) Who's on the team? (Include names and UNIs)
+
+- Dhananjay Deshpande (dcd2139)
+- Meenakshi Zutshi (mz2644)
+
+b) How do you plan to divide up the work? (Grading is on a group basis. The point of asking is to encourage you to think about this.)
+
+We intend to divide work by questions that need to be answered 
+
+- Overall Population Segregation by Race (Dhananjay)
+- School Segregation by Race (Meenakshi)
+
+Each of these require the following work items:
+
+- Data Gathering 
+- Cleaning 
+- Vizualisation
+- Presentation
+
+We plan to meet on regular basis to share notes and discuss solutions and progress.
+
+### 2. The Questions
+
+[6 points]
+
+List three questions that you hope you will be able to answer from your research.
+
+1. How are races segregated in New York City by boroughs?
+
+2. How are races segregated in New York City by Zip code?
+
+3. Is segregation of races consistent with racial segregation in schools?
+
+### 3. Which output format do you plan to use to submit the project? 
+
+[2 points]
+
+RMD, html_document
+
+### 4. The Data
+
+What is your data source?  What is your method for importing data? Please be specific. Provide relevant information such as any obstacles you're encountering and what you plan to do to overcome them.
+
+[5 points]
+
+Multiple datasets are available for demographic data. We will start with the following datasets :
+
+1. US Government Census data includes data uptil 2018 regarding race and ethnicity by county and zipcode
+
+- https://data.census.gov/cedsci/profile?g=0400000US36&q=New%20York
+
+2. DOE New York City schools demographic data between 2013-2018 
+
+- https://data.cityofnewyork.us/Education/2013-2018-Demographic-Snapshot-School/s52a-8aq6
+
+
+```{r}
+#install.packages("devtools")
+#library(devtools)
+#install_github('arilamstein/choroplethrZip@v1.5.0')
+#install.packages("choroplethrMaps")
+```
+
+### 5. Provide a short summary, including 2-3 graphs, of your initial investigations. 
+
+[10 points]
+
+We found choroplethr packages to map population by demographics to boroughs and zipcodes on a choropleth map of NYC. 
+
+1. https://rdrr.io/cran/choroplethr/man/county_choropleth_acs.html
+2. https://arilamstein.com/creating-zip-code-choropleths-choroplethrzip/
+3. https://www.trulia.com/blog/tech/the-choroplethr-package-for-r/
+
+Using these packages, there was no need for intermediate data cleaning.
+
+```{r}
+###### Settings
+
+library(choroplethr)
+library(acs)
+library(ggplot2)
+library(RColorBrewer)
+library(dplyr)
+library(choroplethrMaps)
+library(choroplethrZip)
+
+###### API key
+# Need to go to http://api.census.gov/data/key_signup.html to set API key
+api.key.install("5090bf8957911bad76f58e6637e951fe219d5e45")
+
+# Race by borough
+nyc_fips = c(36005, 36047, 36061, 36081, 36085)
+county_choropleth_acs(tableId="B01003", endyear = 2015, county_zoom=nyc_fips)+labs(title="Total NYC Population by County (2015)")
+county_choropleth_acs(tableId="B02008",endyear = 2015, county_zoom=nyc_fips)+labs(title="NYC Population by County (2015) - White")
+county_choropleth_acs(tableId="B02009",endyear = 2015, county_zoom=nyc_fips)+labs(title="NYC Population by County (2015) - Black ")
+county_choropleth_acs(tableId="B02011",endyear = 2015, county_zoom=nyc_fips)+labs(title="NYC Population by County (2015) - Asian")
+county_choropleth_acs(tableId="B03001",endyear = 2015, county_zoom=nyc_fips)+labs(title="NYC Population by County (2015) - Hispanic")
+
+# Race by zipcode
+zip_choropleth_acs(tableId="B01003", endyear = 2015, county_zoom=nyc_fips)+labs(title="Total NYC Population by Zipcode (2015)")
+zip_choropleth_acs(tableId="B02008",endyear = 2015, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2015) - White")
+zip_choropleth_acs(tableId="B02009",endyear = 2015, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2015) - Black ")
+zip_choropleth_acs(tableId="B02011",endyear = 2015, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2015) - Asian")
+zip_choropleth_acs(tableId="B03001",endyear = 2015, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2015) - Hispanic")
+
+```
+
+Initial investigations for 2015 Census data:
+
+1. Individual Race Distribution by Borough 
+ - population of White people is highest in Brooklyn than other boroughs
+ - population of Black people is highest in Brooklyn than other boroughs
+ - population of Asians people is highest in Queens than other boroughs
+ - population of Hispanic people looks scattered across the 5 boroughs
+ 
+ 2. Individual Race Distribution by Zip code:
+ - We were able to map population by race to zip codes
+ - for investigating racial distribution by zip code, we need to refine the data set to see the relationships
+
+Pending work:
+
+- We would like to compare population data by race between races.
+ 
+- We found datasets that identify racial data per school. We would like to map the schools to zipcodes next.
+ 
+- We would like to study Racial distribution in NYC Schools and whether the distributions match census data. If there is any racial segregation in NYC schools, we would like to understand its distribution and see if there are any patterns 
+ 
+ - We can extend our study to look at income, property rates and their relation to how races are concentrated across NYC.
+
+ 
+ 
+ 
+ 
