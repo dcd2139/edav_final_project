@@ -98,37 +98,7 @@ We found choroplethr packages to map population by demographics to boroughs and 
 
 Using these packages, there was no need for intermediate data cleaning.
 
-```{r}
-###### Settings
 
-library(choroplethr)
-library(acs)
-library(ggplot2)
-library(RColorBrewer)
-library(dplyr)
-library(choroplethrMaps)
-library(choroplethrZip)
-
-###### API key
-# Need to go to http://api.census.gov/data/key_signup.html to set API key
-api.key.install("5090bf8957911bad76f58e6637e951fe219d5e45")
-
-# Race by borough
-nyc_fips = c(36005, 36047, 36061, 36081, 36085)
-county_choropleth_acs(tableId="B01003", endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="Total NYC Population by County (2017)")
-county_choropleth_acs(tableId="B02008",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - White")
-county_choropleth_acs(tableId="B02009",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Black ")
-county_choropleth_acs(tableId="B02011",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Asian")
-county_choropleth_acs(tableId="B03001",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Hispanic")
-
-# Race by zipcode
-zip_choropleth_acs(tableId="B01003", endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="Total NYC Population by Zipcode (2017)")
-zip_choropleth_acs(tableId="B02008",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - White")
-zip_choropleth_acs(tableId="B02009",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - Black ")
-zip_choropleth_acs(tableId="B02011",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - Asian")
-zip_choropleth_acs(tableId="B03001",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - Hispanic")
-
-```
 ```{r}
 # Choropleth maps for county and zip by race 
 
@@ -191,15 +161,7 @@ Pending work:
  References:
  
 https://dlab.berkeley.edu/sites/default/files/training_materials/Census_Lecture_030915.pdf
- 
-```{r}
-api.key.install("5090bf8957911bad76f58e6637e951fe219d5e45")
 
-geo_setting = geo.make(county=nyc_fips,state="NY")
-
-data = acs.fetch(tableId="B01003", endyear = 2017, span=5, variable="B01003_001", geography=geo_setting)
-
-```
  
 ```{r}
 #library(readxl)
@@ -291,7 +253,7 @@ otherraces<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$otherraceE)) +
 
 otherraces
 
-twoormoreraces<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$twoormoreraceE)) +
+twoormoreraces<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$twoormoreracesE)) +
   geom_bar(stat="identity") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) 
 
