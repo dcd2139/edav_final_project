@@ -130,6 +130,8 @@ zip_choropleth_acs(tableId="B03001",endyear = 2017, span=5, county_zoom=nyc_fips
 
 ```
 ```{r}
+# Choropleth maps for county and zip by race 
+
 library(choroplethr)
 library(acs)
 library(ggplot2)
@@ -238,7 +240,7 @@ cb <- ny[ny$GEOID %in% central_bronx, ]
 library(ggplot2)
 library(tidyverse)
 
-mapping <- read.csv("/Users/dhananjaydeshpande/Desktop/Columbia Data Science/EDAV/final_project/New_York_State_ZIP_Codes-County_FIPS_Cross-Reference.csv")
+mapping <- read.csv("New_York_State_ZIP_Codes-County_FIPS_Cross-Reference.csv")
 nyc_mapping <- mapping[mapping$County.FIPS %in% nyc_fips,]
 
 nyc_acs <-ny[ny$GEOID %in% nyc_mapping$ZIP.Code,]
@@ -248,6 +250,8 @@ nyc_acs <- nyc_acs[order(nyc_acs$GEOID),]
 ```
 
 ```{r}
+# Bar charts per race by zip code
+
 library(ggplot2)
 library(tidyverse)
 
@@ -295,6 +299,9 @@ twoormoreraces
 ```
 
 ```{r}
+
+# Stacked bar charts per race by zip code for comparison
+
 library(ggplot2)
 library(tidyverse)
 
