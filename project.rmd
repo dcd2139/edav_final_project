@@ -65,6 +65,13 @@ Multiple datasets are available for demographic data. We will start with the fol
 
 - https://data.census.gov/cedsci/profile?g=0400000US36&q=New%20York
 
+ American Community Survey
+- A continuous survey (taken throughout the decade) o Samples about 3 million addressees each year
+- Contains more detailed information
+- A “moving snapshot”
+- Changed in 2006
+- An “estimate,” creating a Margin of Error
+
 2. DOE New York City schools demographic data between 2013-2018 
 
 - https://data.cityofnewyork.us/Education/2013-2018-Demographic-Snapshot-School/s52a-8aq6
@@ -75,6 +82,8 @@ Multiple datasets are available for demographic data. We will start with the fol
 #library(devtools)
 #install_github('arilamstein/choroplethrZip@v1.5.0')
 #install.packages("choroplethrMaps")
+install.packages("acs")
+install.packages("xlsx")
 ```
 
 ### 5. Provide a short summary, including 2-3 graphs, of your initial investigations. 
@@ -106,21 +115,55 @@ api.key.install("5090bf8957911bad76f58e6637e951fe219d5e45")
 
 # Race by borough
 nyc_fips = c(36005, 36047, 36061, 36081, 36085)
-county_choropleth_acs(tableId="B01003", endyear = 2015, county_zoom=nyc_fips)+labs(title="Total NYC Population by County (2015)")
-county_choropleth_acs(tableId="B02008",endyear = 2015, county_zoom=nyc_fips)+labs(title="NYC Population by County (2015) - White")
-county_choropleth_acs(tableId="B02009",endyear = 2015, county_zoom=nyc_fips)+labs(title="NYC Population by County (2015) - Black ")
-county_choropleth_acs(tableId="B02011",endyear = 2015, county_zoom=nyc_fips)+labs(title="NYC Population by County (2015) - Asian")
-county_choropleth_acs(tableId="B03001",endyear = 2015, county_zoom=nyc_fips)+labs(title="NYC Population by County (2015) - Hispanic")
+county_choropleth_acs(tableId="B01003", endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="Total NYC Population by County (2017)")
+county_choropleth_acs(tableId="B02008",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - White")
+county_choropleth_acs(tableId="B02009",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Black ")
+county_choropleth_acs(tableId="B02011",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Asian")
+county_choropleth_acs(tableId="B03001",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Hispanic")
 
 # Race by zipcode
-zip_choropleth_acs(tableId="B01003", endyear = 2015, county_zoom=nyc_fips)+labs(title="Total NYC Population by Zipcode (2015)")
-zip_choropleth_acs(tableId="B02008",endyear = 2015, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2015) - White")
-zip_choropleth_acs(tableId="B02009",endyear = 2015, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2015) - Black ")
-zip_choropleth_acs(tableId="B02011",endyear = 2015, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2015) - Asian")
-zip_choropleth_acs(tableId="B03001",endyear = 2015, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2015) - Hispanic")
+zip_choropleth_acs(tableId="B01003", endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="Total NYC Population by Zipcode (2017)")
+zip_choropleth_acs(tableId="B02008",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - White")
+zip_choropleth_acs(tableId="B02009",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - Black ")
+zip_choropleth_acs(tableId="B02011",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - Asian")
+zip_choropleth_acs(tableId="B03001",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - Hispanic")
 
 ```
+```{r}
+library(choroplethr)
+library(acs)
+library(ggplot2)
+library(RColorBrewer)
+library(dplyr)
+library(choroplethrMaps)
+library(choroplethrZip)
 
+###### API key
+# Need to go to http://api.census.gov/data/key_signup.html to set API key
+api.key.install("5090bf8957911bad76f58e6637e951fe219d5e45")
+
+# Race by borough
+nyc_fips = c(36005, 36047, 36061, 36081, 36085)
+county_choropleth_acs(tableId="B01003", endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="Total NYC Population by County (2017)")
+county_choropleth_acs(tableId="B02008",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - White")
+county_choropleth_acs(tableId="B02009",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Black ")
+county_choropleth_acs(tableId="B02010",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - American Indian ")
+county_choropleth_acs(tableId="B02011",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Asian")
+county_choropleth_acs(tableId="B02012",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Pacific Islander")
+county_choropleth_acs(tableId="B02013",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Other Race")
+county_choropleth_acs(tableId="B03001",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Hispanic")
+
+# Race by zipcode
+zip_choropleth_acs(tableId="B01003", endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="Total NYC Population by Zipcode (2017)")
+zip_choropleth_acs(tableId="B02008",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - White")
+zip_choropleth_acs(tableId="B02009",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - Black ")
+zip_choropleth_acs(tableId="B02010",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - American Indian")
+zip_choropleth_acs(tableId="B02011",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - Asian")
+zip_choropleth_acs(tableId="B02012",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - Pacific Islander")
+zip_choropleth_acs(tableId="B02013",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - Other Race")
+zip_choropleth_acs(tableId="B03001",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - Hispanic")
+
+```
 Initial investigations for 2015 Census data:
 
 1. Individual Race Distribution by Borough 
@@ -142,8 +185,125 @@ Pending work:
 - We would like to study Racial distribution in NYC Schools and whether the distributions match census data. If there is any racial segregation in NYC schools, we would like to understand its distribution and see if there are any patterns 
  
  - We can extend our study to look at income, property rates and their relation to how races are concentrated across NYC.
+ 
+ References:
+ 
+https://dlab.berkeley.edu/sites/default/files/training_materials/Census_Lecture_030915.pdf
+ 
+```{r}
+api.key.install("5090bf8957911bad76f58e6637e951fe219d5e45")
 
+geo_setting = geo.make(county=nyc_fips,state="NY")
+
+data = acs.fetch(tableId="B01003", endyear = 2017, span=5, variable="B01003_001", geography=geo_setting)
+
+```
  
- 
- 
- 
+```{r}
+#library(readxl)
+
+#df <- read_excel("/Users/dhananjaydeshpande/Desktop/Columbia Data Science/EDAV/final_project/ACS2017_Table_Shells.xlsx")
+
+#df <- read.csv(file="/Users/dhananjaydeshpande/Desktop/Columbia Data Science/EDAV/final_project/ACS_17_5YR_DP05/ACS_17_5YR_DP05_with_ann.csv", header=TRUE, sep=",")
+
+#df
+```
+```{r}
+install.packages("tidycensus")
+```
+```{r}
+library(tidycensus)
+census_api_key("5090bf8957911bad76f58e6637e951fe219d5e45", install = TRUE)
+```
+```{r}
+library(tidycensus)
+census <- load_variables(2017,"acs5",cache=TRUE)
+```
+```{r}
+ny <- get_acs(geography = "zcta", 
+              variables = c(total = "B02001_001", white = "B02001_002", black = "B02001_003", americanindian = "B02001_004",asian =  "B02001_005", pacificislander = "B02001_006", hispanic = "B03002_001", otherrace = "B02001_007", twoormoreraces = "B02001_008"), output="wide")
+```
+
+```{r}
+library(ggplot2)
+# Basic barplot
+
+central_bronx <- c(10453, 10457, 10460)
+
+cb <- ny[ny$GEOID %in% central_bronx, ]
+
+
+```
+```{r}
+library(ggplot2)
+library(tidyverse)
+
+mapping <- read.csv("/Users/dhananjaydeshpande/Desktop/Columbia Data Science/EDAV/final_project/New_York_State_ZIP_Codes-County_FIPS_Cross-Reference.csv")
+nyc_mapping <- mapping[mapping$County.FIPS %in% nyc_fips,]
+
+nyc_acs <-ny[ny$GEOID %in% nyc_mapping$ZIP.Code,]
+
+nyc_acs <- nyc_acs[order(nyc_acs$GEOID),] 
+
+```
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+
+total<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$totalE)) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 3))    
+    
+total
+
+whites<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$whiteE)) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) 
+
+whites
+
+blacks<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$blackE)) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) 
+
+blacks
+
+americanindians<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$americanindianE)) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) 
+
+americanindians
+
+pacificislanders<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$pacificislanderE)) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) 
+
+pacificislanders
+
+otherraces<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$otherraceE)) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) 
+
+otherraces
+
+twoormoreraces<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$twoormoreraceE)) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) 
+
+twoormoreraces
+```
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+
+tidy_nyc_acs <- nyc_acs %>% 
+  gather(p, value, c(whiteE,blackE,americanindianE, asianE, pacificislanderE, otherraceE,twoormoreracesE))
+
+ggplot(tidy_nyc_acs, aes(x = GEOID, y = value, fill = p)) + 
+  geom_col(position = position_stack()) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) 
+
+```
