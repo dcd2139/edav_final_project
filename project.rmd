@@ -1,5 +1,5 @@
 ---
-title: "EDAV Fall 2019 PSet 5, part A"
+title: "EDAV Fall 2019 - Racial Segregation in NYC"
 author: "Dhananjay Deshpande, Meenakshi Zutshi"
 output: html_document
 ---
@@ -8,56 +8,11 @@ output: html_document
 knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
 ```
 
-This assignment is designed to help you get started on the final project. Be sure to review the final project instructions (https://edav.info/project.html), in particular the new section on reproducible workflow (https://edav.info/project.html#reproducible-workflow), which summarizes principles that we've discussed in class.
-    
-### 1. The Team
+As part of this project, we would like to study the racial distribution of population in New York City to help answer the following questions:
 
-[2 points]
-
-a) Who's on the team? (Include names and UNIs)
-
-- Dhananjay Deshpande (dcd2139)
-- Meenakshi Zutshi (mz2644)
-
-b) How do you plan to divide up the work? (Grading is on a group basis. The point of asking is to encourage you to think about this.)
-
-We intend to divide work by questions that need to be answered 
-
-- Overall Population Segregation by Race (Dhananjay)
-- School Segregation by Race (Meenakshi)
-
-Each of these require the following work items:
-
-- Data Gathering 
-- Cleaning 
-- Vizualisation
-- Presentation
-
-We plan to meet on regular basis to share notes and discuss solutions and progress.
-
-### 2. The Questions
-
-[6 points]
-
-List three questions that you hope you will be able to answer from your research.
-
-1. How are races segregated in New York City by boroughs?
-
-2. How are races segregated in New York City by Zip code?
-
+1. Are races segregated across NYC?
+2. How are races segregated in New York City by boroughs and zip codes?
 3. Is segregation of races consistent with racial segregation in schools?
-
-### 3. Which output format do you plan to use to submit the project? 
-
-[2 points]
-
-RMD, html_document
-
-### 4. The Data
-
-What is your data source?  What is your method for importing data? Please be specific. Provide relevant information such as any obstacles you're encountering and what you plan to do to overcome them.
-
-[5 points]
 
 Multiple datasets are available for demographic data. We will start with the following datasets :
 
@@ -65,12 +20,9 @@ Multiple datasets are available for demographic data. We will start with the fol
 
 - https://data.census.gov/cedsci/profile?g=0400000US36&q=New%20York
 
- American Community Survey
-- A continuous survey (taken throughout the decade) o Samples about 3 million addressees each year
-- Contains more detailed information
-- A “moving snapshot”
-- Changed in 2006
-- An “estimate,” creating a Margin of Error
+Census data is collected every 10 years (decennial survey). Last survey was conducted in 2010.
+
+The other alternative survey peformed by sampling the population is the American Community Survey (ACS), performed yearly. The datasets available from ACS are either yearly or average of past 5 years. The 5 year average is considered the most reliable. We choose to use the 2013-2017 5 year average data for our study.
 
 2. DOE New York City schools demographic data between 2013-2018 
 
@@ -79,24 +31,19 @@ Multiple datasets are available for demographic data. We will start with the fol
 
 ```{r}
 #install.packages("devtools")
-#library(devtools)
 #install_github('arilamstein/choroplethrZip@v1.5.0')
 #install.packages("choroplethrMaps")
-install.packages("acs")
-install.packages("xlsx")
+#install.packages("acs")
+#install.packages("xlsx")
+#install.packages("tidycensus")
+#install.packages("janitor")
 ```
-
-### 5. Provide a short summary, including 2-3 graphs, of your initial investigations. 
-
-[10 points]
 
 We found choroplethr packages to map population by demographics to boroughs and zipcodes on a choropleth map of NYC. 
 
 1. https://rdrr.io/cran/choroplethr/man/county_choropleth_acs.html
 2. https://arilamstein.com/creating-zip-code-choropleths-choroplethrzip/
 3. https://www.trulia.com/blog/tech/the-choroplethr-package-for-r/
-
-Using these packages, there was no need for intermediate data cleaning.
 
 
 ```{r}
@@ -110,7 +57,6 @@ library(dplyr)
 library(choroplethrMaps)
 library(choroplethrZip)
 
-###### API key
 # Need to go to http://api.census.gov/data/key_signup.html to set API key
 api.key.install("5090bf8957911bad76f58e6637e951fe219d5e45")
 
@@ -123,8 +69,16 @@ county_choropleth_acs(tableId="B02010",endyear = 2017, span=5, county_zoom=nyc_f
 county_choropleth_acs(tableId="B02011",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Asian")
 county_choropleth_acs(tableId="B02012",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Pacific Islander")
 county_choropleth_acs(tableId="B02013",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Other Race")
-county_choropleth_acs(tableId="B03001",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Hispanic")
+```
 
+Observations from Borough Choropleth maps:
+
+ - population of White people is highest in Brooklyn than other boroughs
+ - population of Black people is highest in Brooklyn than other boroughs
+ - population of Asians people is highest in Queens than other boroughs
+ - population of Hispanic people is highest in Bronx than other boroughs
+ 
+```{r}
 # Race by zipcode
 zip_choropleth_acs(tableId="B01003", endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="Total NYC Population by Zipcode (2017)")
 zip_choropleth_acs(tableId="B02008",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - White")
@@ -133,52 +87,13 @@ zip_choropleth_acs(tableId="B02010",endyear = 2017, span=5, county_zoom=nyc_fips
 zip_choropleth_acs(tableId="B02011",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - Asian")
 zip_choropleth_acs(tableId="B02012",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - Pacific Islander")
 zip_choropleth_acs(tableId="B02013",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - Other Race")
-zip_choropleth_acs(tableId="B03001",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - Hispanic")
 
 ```
-Initial investigations for 2015 Census data:
 
-1. Individual Race Distribution by Borough 
- - population of White people is highest in Brooklyn than other boroughs
- - population of Black people is highest in Brooklyn than other boroughs
- - population of Asians people is highest in Queens than other boroughs
- - population of Hispanic people looks scattered across the 5 boroughs
- 
- 2. Individual Race Distribution by Zip code:
- - We were able to map population by race to zip codes
- - for investigating racial distribution by zip code, we need to refine the data set to see the relationships
+Observations from Choropleth maps By Zipcodes:
+ - High concentration of white population can be noticed in neighborhoods in lower Brooklyn, Central Staten Island and Upper West Side
+ - High concentration of black population can be noticed in neighborhoods in southern Brookyln, sourthern queens, 
 
-Pending work:
-
-- We would like to compare population data by race between races.
- 
-- We found datasets that identify racial data per school. We would like to map the schools to zipcodes next.
- 
-- We would like to study Racial distribution in NYC Schools and whether the distributions match census data. If there is any racial segregation in NYC schools, we would like to understand its distribution and see if there are any patterns 
- 
- - We can extend our study to look at income, property rates and their relation to how races are concentrated across NYC.
- 
- References:
- 
-https://dlab.berkeley.edu/sites/default/files/training_materials/Census_Lecture_030915.pdf
-
- 
-```{r}
-#library(readxl)
-
-#df <- read_excel("/Users/dhananjaydeshpande/Desktop/Columbia Data Science/EDAV/final_project/ACS2017_Table_Shells.xlsx")
-
-#df <- read.csv(file="/Users/dhananjaydeshpande/Desktop/Columbia Data Science/EDAV/final_project/ACS_17_5YR_DP05/ACS_17_5YR_DP05_with_ann.csv", header=TRUE, sep=",")
-
-#df
-```
-```{r}
-install.packages("tidycensus")
-```
-```{r}
-library(tidycensus)
-census_api_key("5090bf8957911bad76f58e6637e951fe219d5e45", install = TRUE)
-```
 ```{r}
 library(tidycensus)
 census <- load_variables(2017,"acs5",cache=TRUE)
@@ -188,16 +103,7 @@ ny <- get_acs(geography = "zcta",
               variables = c(total = "B02001_001", white = "B02001_002", black = "B02001_003", americanindian = "B02001_004",asian =  "B02001_005", pacificislander = "B02001_006", hispanic = "B03002_001", otherrace = "B02001_007", twoormoreraces = "B02001_008"), output="wide")
 ```
 
-```{r}
-library(ggplot2)
-# Basic barplot
 
-central_bronx <- c(10453, 10457, 10460)
-
-cb <- ny[ny$GEOID %in% central_bronx, ]
-
-
-```
 ```{r}
 library(ggplot2)
 library(tidyverse)
@@ -260,9 +166,11 @@ twoormoreraces<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$twoormoreracesE))
 twoormoreraces
 ```
 
+Observations from Bar Plots Per Zipcode for Individual Races:
+
 ```{r}
 
-# Stacked bar charts per race by zip code for comparison
+# Plot representation by zipcodes
 
 library(ggplot2)
 library(tidyverse)
@@ -276,3 +184,118 @@ ggplot(tidy_nyc_acs, aes(x = GEOID, y = value, fill = p)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) 
 
 ```
+
+Observations from Stacked Bar Plots Per Zipcode:
+
+```{r}
+# Plot representation by neighborhoods
+library(janitor)
+library(tidyverse)
+
+chartRegion <- function(zipCodeList, neighborhood, county)
+{
+
+  region <- ny[ny$GEOID %in% zipCodeList, ]
+
+
+
+  region<- region[c("GEOID","whiteE","blackE","americanindianE", "asianE", "pacificislanderE", "otherraceE","twoormoreracesE")]
+
+  region <- region %>%
+  adorn_totals("row")
+
+  n <- nrow(region)
+  region <- region[(n):n, ]
+
+  tidy_region <- region %>% 
+  gather(Race, Population, -GEOID)
+
+  ggplot(tidy_region, aes(x = GEOID, y = Population, fill = Race)) + 
+  geom_col(position = position_stack()) +
+  ggtitle(paste("Population in ", neighborhood, " - ", county)) +
+  xlab(neighborhood)
+
+}
+```
+
+```{r}
+# Bronx
+
+chartRegion(c(10453, 10457, 10460), "Central Bronx", "Bronx")
+chartRegion(c(10458, 10467, 10468), "Bronx Park and Fordham", "Bronx")
+chartRegion(c(10451, 10452, 10456), "High Bridge and Morrisania", "Bronx")
+chartRegion(c(10454, 10455, 10459, 10474), "Hunts Point and Mott Haven", "Bronx")
+chartRegion(c(10463, 10471), "Kingsbridge and Riverdale", "Bronx")
+chartRegion(c(10466, 10469, 10470, 10475), "Northeast Bronx", "Bronx")
+chartRegion(c(10461, 10462,10464, 10465, 10472, 10473), "Southeast Bronx", "Bronx")
+```
+
+Observations about Neighborhoods in Bronx:
+
+```{r}
+# Brooklyn
+
+chartRegion(c(11212, 11213, 11216, 11233, 11238), "Central Brooklyn", "Brooklyn")
+chartRegion(c(11209, 11214, 11228), "Southwest Brooklyn", "Brooklyn")
+chartRegion(c(11204, 11218, 11219, 11230), "Borough Park", "Brooklyn")
+chartRegion(c(11234, 11236, 11239), "Canarsie and Flatlands", "Brooklyn")
+chartRegion(c(11223, 11224, 11229, 11235), "Southern Brooklyn", "Brooklyn")
+chartRegion(c(11201, 11205, 11215, 11217, 11231), "Northwest Brooklyn", "Brooklyn")
+chartRegion(c(11203, 11210, 11225, 11226), "Flatbush", "Brooklyn")
+chartRegion(c(11207, 11208), "East New York and New Lots", "Brooklyn")
+chartRegion(c(11211, 11222), "Greenpoint", "Brooklyn")
+chartRegion(c(11220, 11232), "Sunset Park", "Brooklyn")
+chartRegion(c(11206, 11221, 11237), "Bushwick and Williamsburg", "Brooklyn")
+```
+
+Observations about Neighborhoods in Brooklyn:
+```{r}
+# Manhattan
+
+chartRegion(c(10026, 10027, 10030, 10037, 10039), "Central Harlem", "Manhattan")
+chartRegion(c(10001, 10011, 10018, 10019, 10020, 10036), "Chelsea and Clinton", "Manhattan")
+chartRegion(c(10029, 10035), "East Harlem", "Manhattan")
+chartRegion(c(10010, 10016, 10017, 10022), "Gramercy Park and Murray Hill", "Manhattan")
+chartRegion(c(10012, 10013, 10014), "Greenwich Village and Soho", "Manhattan")
+chartRegion(c(10004, 10005, 10006, 10007, 10038, 10280), "Lower Manhattan", "Manhattan")
+chartRegion(c(10002, 10003, 10009), "Lower East Side", "Manhattan")
+chartRegion(c(10002, 10003, 10009), "Upper East Side", "Manhattan")
+chartRegion(c(10023, 10024, 10025), "Upper West Side", "Manhattan")
+chartRegion(c(10031, 10032, 10033, 10034, 10040), "Inwood and Washington Heights", "Manhattan")
+```
+Observations about Neighborhoods in Manhattan:
+```{r}
+# Queens
+
+chartRegion(c(11361, 11362, 11363, 11364), "Northeast Queens", "Queens")
+chartRegion(c(11354, 11355, 11356, 11357, 11358, 11359, 11360), "North Queens", "Queens")
+chartRegion(c(11365, 11366, 11367), "Central Queens", "Queens")
+chartRegion(c(11412, 11423, 11432, 11433, 11434, 11435, 11436), "Jamaica", "Queens")
+chartRegion(c(11101, 11102, 11103, 11104, 11105, 11106), "Northwest Queens", "Queens")
+chartRegion(c(11374, 11375, 11379, 11385), "West Central Queens", "Queens")
+chartRegion(c(11691, 11692, 11693, 11694, 11695, 11697), "Rockaways", "Queens")
+chartRegion(c(11004, 11005, 11411, 11413, 11422, 11426, 11427, 11428, 11429), "Southeast Queens", "Queens")
+chartRegion(c(11414, 11415, 11416, 11417, 11418, 11419, 11420, 11421), "Southwest Queens", "Queens")
+chartRegion(c(11368, 11369, 11370, 11372, 11373, 11377, 11378), "West Queens", "Queens")
+```
+
+Observations about Neighborhoods in Queens:
+
+```{r}
+# Staten Island
+
+chartRegion(c(10302, 10303, 10310), "Port Richmond", "Staten Island")
+chartRegion(c(10306, 10307, 10308, 10309, 10312), "South Shore", "Staten Island")
+chartRegion(c(10301, 10304, 10305), "Stapleton and St. George", "Staten Island")
+chartRegion(c(10314), "Mid-Island", "Staten Island")
+
+```
+Observations about Neighborhoods in Staten Island:
+
+Conclusion:
+
+
+
+References:
+ 
+https://dlab.berkeley.edu/sites/default/files/training_materials/Census_Lecture_030915.pdf
