@@ -283,7 +283,7 @@ zip_choropleth(df_seg_score,
 ```
 
 
-###9. Race segregation analysis in NYC schools by zip code for 2017-18 data
+###9. Analysis on stedents enrolled in NYC schools by zip code 
 
 ```{r}
 
@@ -305,7 +305,7 @@ zip_choropleth(df_students,
                title = "Total enrolled students by Zip-Code",
                legend = "Total enrolled students")
 
-### Race segregation analysis in NYC schools by zip code for 2017-18 data
+### Analysis on stedents enrolled in NYC schools by zip code  for 2017-18 data
 enrollment_df_2017 = subset(df_enrolled_students, Year == "2017-18")
 df_with_zips_2017_subset <- left_join(enrollment_df_2017, all_rows_for_dbn, by = "DBN")
 df_with_zips_2017_subset <- df_with_zips_2017_subset[complete.cases(df_with_zips_2017_subset),]
