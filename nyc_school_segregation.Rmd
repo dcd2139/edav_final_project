@@ -13,6 +13,8 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
 library(extracat)
 library(dplyr)
 library(tidyverse)
+library(choroplethrZip)
+data(zip.regions)
 #school_seg = read.csv2("/Users/meenakshizutshi/Documents/Columbia/edav/final-project/2013_-_2018_Demographic_Snapshot_School.csv", header=TRUE, sep=",")
 delim = ","  # or is it "\t" ?
 dec = "."    # or is it "," ?
@@ -33,6 +35,10 @@ school_seg$X..Black.1 <- as.numeric(school_seg$X..Black.1)
 school_seg$X..White.1 <- as.numeric(school_seg$X..White.1)
 school_seg$X..Hispanic.1 <- as.numeric(school_seg$X..Hispanic.1)
 school_seg$X..Multiple.Race.Categories.Not.Represented.1 <- as.numeric(school_seg$X..Multiple.Race.Categories.Not.Represented.1)
+
+#later use for comparisons:
+df_enrolled_students <- school_seg[,c("DBN","Year","Total.Enrollment")]
+colnames(df_enrolled_students) <- c("DBN","Year","Number_of_enrolled_students")
 
 
 ```
@@ -220,31 +226,37 @@ df_with_zips <- df_with_zips[complete.cases(df_with_zips),]
 # Installing packages 
 #install.packages("devtools")
 #devtools::install_github('arilamstein/choroplethrZip@v1.5.0')
-library(choroplethrZip)
-data(zip.regions)
+
 
 ```
 
 ```{r}
+
+# Race segregation analysis in NYC schools by zip code for 5 years data 2013-2018
 df_seg_score <- df_with_zips[, c("Postcode", "Segregation_score")]
+
 df_seg_score <- df_seg_score %>%
   group_by(Postcode) %>%
   summarise(mean_seg_score = mean(Segregation_score))
 
 colnames(df_seg_score) <- c("region", "value")
+
 df_seg_score$region <- as.character(df_seg_score$region)
 
 valid_zips = intersect(df_seg_score$region, zip.regions$region)
+
 zip_choropleth(df_seg_score,
                zip_zoom = c(valid_zips),
                title = "Segregation Score by Zip-Code",
                legend = "Segregation Score")
 
+
+
+
 ```
 
 
 ###7. Most common race by zip code in choropleth  
-
 
 ```{r}
 # TODO: For this part, Top race has to be calculated again after grouping by zip-code.
@@ -268,4 +280,50 @@ zip_choropleth(df_seg_score,
 #                title = "Most common race by Zip-Code",
 #                legend = "Most Common race")
 
+```
+
+
+###9. Race segregation analysis in NYC schools by zip code for 2017-18 data
+
+```{r}
+
+##5 years
+df_with_zips_students <- left_join(df_enrolled_students, all_rows_for_dbn, by = "DBN")
+df_with_zips_students <- df_with_zips_students[complete.cases(df_with_zips_students),]
+df_with_zips_students <- df_with_zips_students[, c("Postcode", "Number_of_enrolled_students")]
+
+df_students <- df_with_zips_students %>%
+  group_by(Postcode) %>%
+  summarise(sum_students = sum(Number_of_enrolled_students))
+
+colnames(df_students) <- c("region", "value")
+df_students$region <- as.character(df_students$region)
+valid_zips_students= intersect(df_students$region, zip.regions$region)
+
+zip_choropleth(df_students,
+               zip_zoom = c(valid_zips_students),
+               title = "Total enrolled students by Zip-Code",
+               legend = "Total enrolled students")
+
+### Race segregation analysis in NYC schools by zip code for 2017-18 data
+enrollment_df_2017 = subset(df_enrolled_students, Year == "2017-18")
+df_with_zips_2017_subset <- left_join(enrollment_df_2017, all_rows_for_dbn, by = "DBN")
+df_with_zips_2017_subset <- df_with_zips_2017_subset[complete.cases(df_with_zips_2017_subset),]
+df_enrolled_students_2017 <- df_with_zips_2017_subset[, c("Postcode", "Number_of_enrolled_students")]
+
+df_students_2017 <- df_enrolled_students_2017 %>%
+  group_by(Postcode) %>%
+  summarise(sum_students = sum(Number_of_enrolled_students))
+
+colnames(df_students_2017) <- c("region", "value")
+df_students_2017$region <- as.character(df_students_2017$region)
+valid_zips_2017 = intersect(df_students_2017$region, zip.regions$region)
+
+zip_choropleth(df_students_2017,
+               zip_zoom = c(valid_zips_2017),
+               title = "Total enrolled students by Zip-Code for 2017-18",
+               legend = "Total enrolled students")
+
+
+```
 
