@@ -9,7 +9,7 @@ code_folding: hide
 knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
 ```
 
-**Introduction**
+## Introduction
 
 New York City is amongst the most populated cities in the world with about 8.6 million people (2017). It is also the melting pot of America with representation from all races.
 
@@ -21,7 +21,7 @@ We were curious to look at demographic data to find out the racial distribution 
 2. How are races segregated in New York City by boroughs and zip codes?
 3. Is segregation of races consistent with racial segregation in schools?
 
-**Datasets**
+## Datasets
 
 We found multiple datasets are available for demographic and race data. We chose to focus on the following datasets :
 
@@ -49,6 +49,7 @@ The ACS data contains population numbers for the following races
 
 - https://data.cityofnewyork.us/Education/2013-2018-Demographic-Snapshot-School/s52a-8aq6
 
+## Analysis
 
 ```{r}
 #install.packages("devtools")
@@ -61,7 +62,7 @@ The ACS data contains population numbers for the following races
 ```
 
 
-**Distribution of Races by Borough**
+### Distribution of Races by Borough
 
 We found choroplethr packages to map population by demographics to boroughs and zipcodes on a choropleth map of NYC. 
 
@@ -92,14 +93,14 @@ county_choropleth_acs(tableId="B02012",endyear = 2017, span=5, county_zoom=nyc_f
 county_choropleth_acs(tableId="B02013",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Other Race")
 ```
 
-Observations from Borough Choropleth maps:
+**Observations from Borough Choropleth maps:**
 
  - population of White people is highest in Brooklyn than other boroughs
  - population of Black people is highest in Brooklyn than other boroughs
  - population of Asians people is highest in Queens than other boroughs
  - population of Hispanic people is highest in Bronx than other boroughs
  
-**Distribution of Races by Zip Code**
+### Distribution of Races by Zip Code
 
 Choroplethr maps by zip code allowed us to identify clusters of zip codes where each race was concentrated.
  
@@ -115,12 +116,13 @@ zip_choropleth_acs(tableId="B02013",endyear = 2017, span=5, county_zoom=nyc_fips
 
 ```
 
-Observations from Choropleth maps By Zipcodes:
+**Observations from Choropleth maps By Zipcodes:**
+
  - High concentration of white population can be noticed in neighborhoods in lower Brooklyn, Central Staten Island and Upper West Side
  - High concentration of black population can be noticed in neighborhoods in southern Brookyln, Southern Queens
  - High concentration of Hispanic of populated can be noticed in neighborhoods in Bronx
  
- **Alternative study of racial concentration by Zipcodes**
+### Studying Racial concentration by Zipcodes using Bar Charts
  
 We noticed that Zipcodes in NYC have unique patterns per Borough:
 
@@ -163,58 +165,75 @@ library(tidyverse)
 
 total<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$totalE)) +
   geom_bar(stat="identity") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 3))    
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 3)) +
+  xlab("Zip codes") +
+  ylab("Population")
     
 total
 
 whites<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$whiteE)) +
   geom_bar(stat="identity") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) +
+  xlab("Zip codes") +
+  ylab("Population")
 
 whites
 
 blacks<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$blackE)) +
   geom_bar(stat="identity") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) +
+  xlab("Zip codes") +
+  ylab("Population")
 
 blacks
 
 americanindians<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$americanindianE)) +
   geom_bar(stat="identity") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) +
+  xlab("Zip codes") +
+  ylab("Population")
 
 americanindians
 
 asians<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$asianE)) +
   geom_bar(stat="identity") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) +
+  xlab("Zip codes") +
+  ylab("Population")
 
 asians
 
 pacificislanders<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$pacificislanderE)) +
   geom_bar(stat="identity") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) +
+  xlab("Zip codes") +
+  ylab("Population")
 
 pacificislanders
 
 otherraces<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$otherraceE)) +
   geom_bar(stat="identity") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) +
+  xlab("Zip codes") +
+  ylab("Population")
 
 otherraces
 
 twoormoreraces<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$twoormoreracesE)) +
   geom_bar(stat="identity") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) +
+  xlab("Zip codes") +
+  ylab("Population")
 
 twoormoreraces
 ```
 
-Observations from Bar Plots Per Zipcode for Individual Races:
-- High concentration of whites in Brooklyn
-- High concentration of blacks in Brooklyn yet sparser than whites
+**Observations from Bar Plots Per Zipcode for Individual Races:**
 
-**Comparing Races**
+ - High concentration of whites in Brooklyn
+ - High concentration of blacks in Brooklyn yet sparser than whites
+
+### Comparing Races
 
 Next we compared the populations between races across all the zip codes. This was to identify if there was a larger concentration of any one race wrt others across the zipcodes in NYC.
 
@@ -226,19 +245,22 @@ library(ggplot2)
 library(tidyverse)
 
 tidy_nyc_acs <- nyc_acs %>% 
-  gather(p, value, c(whiteE,blackE,americanindianE, asianE, pacificislanderE, otherraceE,twoormoreracesE))
+  gather(Race, value, c(whiteE,blackE,americanindianE, asianE, pacificislanderE, otherraceE,twoormoreracesE))
 
-ggplot(tidy_nyc_acs, aes(x = GEOID, y = value, fill = p)) + 
+ggplot(tidy_nyc_acs, aes(x = GEOID, y = value, fill = Race)) + 
   geom_col(position = position_stack()) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) +
+  xlab("Zip Codes") + 
+  ylab("Population")
 
 ```
 
-Observations from Stacked Bar Plots Per Zipcode:
-- There are zipcodes with predominantly white population
-- There are zipcodes with predominantly black population
-- There are zipcodes with predominantly hispanic population
+**Observations from Stacked Bar Plots Per Zipcode:**
+
+- There are zipcodes with predominantly white population (10128, 11211, 11385)
+- There are zipcodes with predominantly black population (10466, 11236)
+- There are zipcodes with predominantly hispanic population (10468)
 
 ```{r}
 # Plot representation by neighborhoods
@@ -271,13 +293,13 @@ chartRegion <- function(zipCodeList, neighborhood, county)
 }
 ```
 
-**Comparing Racial Population by Neighborhood**
+### Comparing Racial Population by Neighborhood
 
 Next we studied each neighborhood in NYC as per neighborhoods listed here - https://www.health.ny.gov/statistics/cancer/registry/appendix/neighborhoods.htm
 
 The goal was to find neighborhoods where populations from one race dominated. 
 
-**Bronx**
+#### Bronx
 ```{r}
 # Bronx
 
@@ -290,11 +312,11 @@ chartRegion(c(10466, 10469, 10470, 10475), "Northeast Bronx", "Bronx")
 chartRegion(c(10461, 10462,10464, 10465, 10472, 10473), "Southeast Bronx", "Bronx")
 ```
 
-Observations about Neighborhoods in Bronx:
+**Observations about Neighborhoods in Bronx:**
 
-- Neihborhoods in Brnx wre found to have high concentration of Hispanic population compared to other races. Central Bronx, Bronx Park and Fordham, Hunts Point and Mott Haven had the highest concentration of Hispanic population.
+- Neighborhoods in Brnx wre found to have high concentration of Hispanic population compared to other races. Central Bronx, Bronx Park and Fordham, Hunts Point and Mott Haven had the highest concentration of Hispanic population.
 
-**Brooklyn**
+#### Brooklyn
 
 ```{r}
 # Brooklyn
@@ -312,7 +334,12 @@ chartRegion(c(11220, 11232), "Sunset Park", "Brooklyn")
 chartRegion(c(11206, 11221, 11237), "Bushwick and Williamsburg", "Brooklyn")
 ```
 
-Observations about Neighborhoods in Brooklyn:
+**Observations about Neighborhoods in Brooklyn:**
+
+ - Central Brooklyn, Canarsie and Flatlands, Flatbush, East New York and New Lots are predominantly Black
+ - Southwest Brooklyn, Borough Park, Southern Brooklyn, Northwest Brooklyn are predominantly White
+ 
+#### Manhattan 
 ```{r}
 # Manhattan
 
@@ -327,7 +354,11 @@ chartRegion(c(10002, 10003, 10009), "Upper East Side", "Manhattan")
 chartRegion(c(10023, 10024, 10025), "Upper West Side", "Manhattan")
 chartRegion(c(10031, 10032, 10033, 10034, 10040), "Inwood and Washington Heights", "Manhattan")
 ```
-Observations about Neighborhoods in Manhattan:
+**Observations about Neighborhoods in Manhattan:**
+
+ - Central Harlem is predominantly Black
+ - Chelsea and Clinton, Gramercy Park abd Murray Hill, Greenwich Village and Soho, Lower Manhattan, Upper West Side is predominantly White
+
 ```{r}
 # Queens
 
@@ -343,11 +374,12 @@ chartRegion(c(11414, 11415, 11416, 11417, 11418, 11419, 11420, 11421), "Southwes
 chartRegion(c(11368, 11369, 11370, 11372, 11373, 11377, 11378), "West Queens", "Queens")
 ```
 
-Observations about Neighborhoods in Queens:
-- West Central, Northwest Queens has much higher number of whites than other races
-- Jamaica and South East Queens has a much higher number of blacks than other races
+**Observations about Neighborhoods in Queens:**
 
-**Staten Island**
+ - West Central, Northwest Queens has much higher number of whites than other races
+ - Jamaica and South East Queens has a much higher number of blacks than other races
+
+#### Staten Island
 
 ```{r}
 # Staten Island
@@ -358,21 +390,21 @@ chartRegion(c(10301, 10304, 10305), "Stapleton and St. George", "Staten Island")
 chartRegion(c(10314), "Mid-Island", "Staten Island")
 
 ```
-Observations about Neighborhoods in Staten Island:
+**Observations about Neighborhoods in Staten Island:**
 
 - Staten Island in general has a higher number of whites than other races
 - South Shore of Staten Island has very high concentration of whites compared to other races
 
-Conclusion:
+## Conclusion:
 
 - We were able to identify regions in NYC where there were very high concentrations of particular races in comparison to others
 - Overall all areas have some representation from atleast 2 races as we did not find a single zip code with representation from only one race
 
-github link:
+## github link:
 
 https://github.com/dcd2139/edav_final_project
 
-References:
+## References:
  
 https://dlab.berkeley.edu/sites/default/files/training_materials/Census_Lecture_030915.pdf
 https://rdrr.io/cran/choroplethr/man/county_choropleth_acs.html
