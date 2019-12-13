@@ -1,0 +1,847 @@
+---
+title: "EDAV Fall 2019 - Racial Segregation in NYC"
+author: "Dhananjay Deshpande, Meenakshi Zutshi"
+output: html_document
+code_folding: hide
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE)
+```
+
+## Introduction
+
+New York City is amongst the most populated cities in the world with about 8.6 million people (2017). It is also the melting pot of America with representation from all races.
+
+We came across many articles speaking about racial segregation in NYC. https://www.nytimes.com/2019/07/16/nyregion/segregation-nyc-affordable-housing.html refers to how the city’s policy of giving preference to local residents for new affordable housing helps perpetuate racial segregation. As per https://www.nytimes.com/2019/03/26/nyregion/school-segregation-new-york.html, NYC public schools are still struggling with racial segregation.  
+
+We were curious to look at demographic data to find out the racial distribution of population in New York City to help answer the following questions:
+
+1. Are races segregated across NYC?
+2. How are races segregated in New York City by boroughs and zip codes?
+3. Is segregation of races consistent with racial segregation in schools?
+
+## Datasets
+
+We found multiple datasets are available for demographic and race data. We chose to focus on the following datasets :
+
+1. US Government Census data includes data uptil 2018 regarding race and ethnicity by county and zipcode
+
+- American Community Survey
+
+https://data.census.gov/cedsci/profile?g=0400000US36&q=New%20York
+
+Census data is collected every 10 years (decennial survey). Last survey was conducted in 2010.
+
+The other alternative survey peformed by sampling the population is the American Community Survey (ACS), performed yearly. The datasets available from ACS are either yearly or average of past 5 years. The 5 year average is considered the most reliable. We choose to use the 2013-2017 5 year average data for our study.
+
+The ACS data contains population numbers for the following races 
+
+- American Indian
+- Asian
+- Black
+- White
+- Other Race (Used by Hispanics)
+- Pacific Islander
+- Two or more races
+
+2. DOE New York City schools demographic data between 2013-2018 
+
+- https://data.cityofnewyork.us/Education/2013-2018-Demographic-Snapshot-School/s52a-8aq6
+
+To analyze how segregated are NYC schools among the zip codes, below datasets were jonned with the demographic dataset, to source the zip codes for each school.
+
+- https://data.cityofnewyork.us/Education/DOE-High-School-Directory-2013-2014/u553-m549
+- https://data.cityofnewyork.us/Education/2016-DOE-High-School-Directory/7crd-d9xh
+- https://data.cityofnewyork.us/Education/2018-DOE-High-School-Directory/vw9i-7mzq
+- https://data.cityofnewyork.us/Education/2017-DOE-High-School-Directory/s3k6-pzi2
+- https://data.cityofnewyork.us/Education/2018-Pre-K-School-Directory/xck4-5xd5
+- https://data.cityofnewyork.us/Education/2018-DOE-Middle-School-Directory/6kcb-9g8d
+
+## Analysis
+
+```{r}
+#install.packages("devtools")
+#install_github('arilamstein/choroplethrZip@v1.5.0')
+#install.packages("choroplethrMaps")
+#install.packages("acs")
+#install.packages("xlsx")
+#install.packages("tidycensus")
+#install.packages("janitor")
+```
+
+
+### Distribution of Races by Borough
+
+We found choroplethr packages to map population by demographics to boroughs and zipcodes on a choropleth map of NYC. 
+
+Choropleth maps allow us to make comparisons before data corresponding to geographical areas spatially. The borough maps were useful to get a sense of where each race was concentrated at the Borough level.
+
+```{r}
+# Choropleth maps for county and zip by race 
+
+library(choroplethr)
+library(acs)
+library(ggplot2)
+library(RColorBrewer)
+library(dplyr)
+library(choroplethrMaps)
+library(choroplethrZip)
+
+# Need to go to http://api.census.gov/data/key_signup.html to set API key
+api.key.install("5090bf8957911bad76f58e6637e951fe219d5e45")
+
+# Race by borough
+nyc_fips = c(36005, 36047, 36061, 36081, 36085)
+county_choropleth_acs(tableId="B01003", endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="Total NYC Population by County (2017)")
+county_choropleth_acs(tableId="B02008",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - White")
+county_choropleth_acs(tableId="B02009",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Black ")
+county_choropleth_acs(tableId="B02010",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - American Indian ")
+county_choropleth_acs(tableId="B02011",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Asian")
+county_choropleth_acs(tableId="B02012",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Pacific Islander")
+county_choropleth_acs(tableId="B02013",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by County (2017) - Other Race")
+```
+
+**Observations from Borough Choropleth maps:**
+
+ - population of White people is highest in Brooklyn than other boroughs
+ - population of Black people is highest in Brooklyn than other boroughs
+ - population of Asians people is highest in Queens than other boroughs
+ - population of Hispanic people is highest in Bronx than other boroughs
+ 
+### Distribution of Races by Zip Code
+
+Choroplethr maps by zip code allowed us to identify clusters of zip codes where each race was concentrated.
+ 
+```{r}
+# Race by zipcode
+zip_choropleth_acs(tableId="B01003", endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="Total NYC Population by Zipcode (2017)")
+zip_choropleth_acs(tableId="B02008",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - White")
+zip_choropleth_acs(tableId="B02009",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - Black ")
+zip_choropleth_acs(tableId="B02010",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - American Indian")
+zip_choropleth_acs(tableId="B02011",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - Asian")
+zip_choropleth_acs(tableId="B02012",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - Pacific Islander")
+zip_choropleth_acs(tableId="B02013",endyear = 2017, span=5, county_zoom=nyc_fips)+labs(title="NYC Population by Zipcode (2017) - Other Race")
+
+```
+
+**Observations from Choropleth maps By Zipcodes:**
+
+ - High concentration of white population can be noticed in neighborhoods in lower Brooklyn, Central Staten Island and Upper West Side
+ - High concentration of black population can be noticed in neighborhoods in southern Brookyln, Southern Queens
+ - High concentration of Hispanic of populated can be noticed in neighborhoods in Bronx
+ 
+### Studying Racial concentration by Zipcodes using Bar Charts
+ 
+We noticed that Zipcodes in NYC have unique patterns per Borough:
+
+- 100** for Manhattan (with the exception of 10280)
+- 103** for Staten Island
+- 104** for Bronx
+- 112* for Brooklyn
+- 11*** for Queens (except 112*)
+
+We can get a sense of racial concentration by borough by plotting the populations per race against the sorted list of Zip Codes.
+
+```{r}
+library(tidycensus)
+census <- load_variables(2017,"acs5",cache=TRUE)
+```
+```{r}
+ny <- get_acs(geography = "zcta", 
+              variables = c(total = "B02001_001", white = "B02001_002", black = "B02001_003", americanindian = "B02001_004",asian =  "B02001_005", pacificislander = "B02001_006", hispanic = "B03002_001", otherrace = "B02001_007", twoormoreraces = "B02001_008"), output="wide")
+```
+
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+
+mapping <- read.csv("New_York_State_ZIP_Codes-County_FIPS_Cross-Reference.csv")
+nyc_mapping <- mapping[mapping$County.FIPS %in% nyc_fips,]
+
+nyc_acs <-ny[ny$GEOID %in% nyc_mapping$ZIP.Code,]
+
+nyc_acs <- nyc_acs[order(nyc_acs$GEOID),] 
+
+```
+
+```{r}
+# Bar charts per race by zip code
+
+library(ggplot2)
+library(tidyverse)
+
+total<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$totalE)) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 3)) +
+  xlab("Zip codes") +
+  ylab("Population")
+    
+total
+
+whites<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$whiteE)) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) +
+  xlab("Zip codes") +
+  ylab("Population")
+
+whites
+
+blacks<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$blackE)) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) +
+  xlab("Zip codes") +
+  ylab("Population")
+
+blacks
+
+americanindians<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$americanindianE)) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) +
+  xlab("Zip codes") +
+  ylab("Population")
+
+americanindians
+
+asians<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$asianE)) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) +
+  xlab("Zip codes") +
+  ylab("Population")
+
+asians
+
+pacificislanders<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$pacificislanderE)) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) +
+  xlab("Zip codes") +
+  ylab("Population")
+
+pacificislanders
+
+otherraces<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$otherraceE)) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) +
+  xlab("Zip codes") +
+  ylab("Population")
+
+otherraces
+
+twoormoreraces<-ggplot(nyc_acs, aes(x=nyc_acs$GEOID, y=nyc_acs$twoormoreracesE)) +
+  geom_bar(stat="identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) +
+  xlab("Zip codes") +
+  ylab("Population")
+
+twoormoreraces
+```
+
+**Observations from Bar Plots Per Zipcode for Individual Races:**
+
+ - High concentration of whites in Brooklyn
+ - High concentration of blacks in Brooklyn yet sparser than whites
+
+### Comparing Races
+
+Next we compared the populations between races across all the zip codes. This was to identify if there was a larger concentration of any one race wrt others across the zipcodes in NYC.
+
+```{r}
+
+# Plot representation by zipcodes
+
+library(ggplot2)
+library(tidyverse)
+
+tidy_nyc_acs <- nyc_acs %>% 
+  gather(Race, value, c(whiteE,blackE,americanindianE, asianE, pacificislanderE, otherraceE,twoormoreracesE))
+
+ggplot(tidy_nyc_acs, aes(x = GEOID, y = value, fill = Race)) + 
+  geom_col(position = position_stack()) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size=3)) +
+  xlab("Zip Codes") + 
+  ylab("Population")
+
+```
+
+**Observations from Stacked Bar Plots Per Zipcode:**
+
+- There are zipcodes with predominantly white population (10128, 11211, 11385)
+- There are zipcodes with predominantly black population (10466, 11236)
+- There are zipcodes with predominantly hispanic population (10468)
+
+```{r}
+# Plot representation by neighborhoods
+library(janitor)
+library(tidyverse)
+
+chartRegion <- function(zipCodeList, neighborhood, county)
+{
+
+  region <- ny[ny$GEOID %in% zipCodeList, ]
+
+
+
+  region<- region[c("GEOID","whiteE","blackE","americanindianE", "asianE", "pacificislanderE", "otherraceE","twoormoreracesE")]
+
+  region <- region %>%
+  adorn_totals("row")
+
+  n <- nrow(region)
+  region <- region[(n):n, ]
+
+  tidy_region <- region %>% 
+  gather(Race, Population, -GEOID)
+
+  ggplot(tidy_region, aes(x = GEOID, y = Population, fill = Race)) + 
+  geom_col(position = position_stack()) +
+  ggtitle(paste("Population in ", neighborhood, " - ", county)) +
+  xlab(neighborhood)
+
+}
+```
+
+### Comparing Racial Population by Neighborhood
+
+Next we studied each neighborhood in NYC as per neighborhoods listed here - https://www.health.ny.gov/statistics/cancer/registry/appendix/neighborhoods.htm
+
+The goal was to find neighborhoods where populations from one race dominated. 
+
+#### Bronx
+```{r}
+# Bronx
+
+chartRegion(c(10453, 10457, 10460), "Central Bronx", "Bronx")
+chartRegion(c(10458, 10467, 10468), "Bronx Park and Fordham", "Bronx")
+chartRegion(c(10451, 10452, 10456), "High Bridge and Morrisania", "Bronx")
+chartRegion(c(10454, 10455, 10459, 10474), "Hunts Point and Mott Haven", "Bronx")
+chartRegion(c(10463, 10471), "Kingsbridge and Riverdale", "Bronx")
+chartRegion(c(10466, 10469, 10470, 10475), "Northeast Bronx", "Bronx")
+chartRegion(c(10461, 10462,10464, 10465, 10472, 10473), "Southeast Bronx", "Bronx")
+```
+
+**Observations about Neighborhoods in Bronx:**
+
+- Neighborhoods in Brnx wre found to have high concentration of Hispanic population compared to other races. Central Bronx, Bronx Park and Fordham, Hunts Point and Mott Haven had the highest concentration of Hispanic population.
+
+#### Brooklyn
+
+```{r}
+# Brooklyn
+par(mfrow = c(3, 4))
+chartRegion(c(11212, 11213, 11216, 11233, 11238), "Central Brooklyn", "Brooklyn")
+chartRegion(c(11209, 11214, 11228), "Southwest Brooklyn", "Brooklyn")
+chartRegion(c(11204, 11218, 11219, 11230), "Borough Park", "Brooklyn")
+chartRegion(c(11234, 11236, 11239), "Canarsie and Flatlands", "Brooklyn")
+chartRegion(c(11223, 11224, 11229, 11235), "Southern Brooklyn", "Brooklyn")
+chartRegion(c(11201, 11205, 11215, 11217, 11231), "Northwest Brooklyn", "Brooklyn")
+chartRegion(c(11203, 11210, 11225, 11226), "Flatbush", "Brooklyn")
+chartRegion(c(11207, 11208), "East New York and New Lots", "Brooklyn")
+chartRegion(c(11211, 11222), "Greenpoint", "Brooklyn")
+chartRegion(c(11220, 11232), "Sunset Park", "Brooklyn")
+chartRegion(c(11206, 11221, 11237), "Bushwick and Williamsburg", "Brooklyn")
+```
+
+**Observations about Neighborhoods in Brooklyn:**
+
+ - Central Brooklyn, Canarsie and Flatlands, Flatbush, East New York and New Lots are predominantly Black
+ - Southwest Brooklyn, Borough Park, Southern Brooklyn, Northwest Brooklyn are predominantly White
+ 
+#### Manhattan 
+
+```{r}
+# Manhattan
+
+chartRegion(c(10026, 10027, 10030, 10037, 10039), "Central Harlem", "Manhattan")
+chartRegion(c(10001, 10011, 10018, 10019, 10020, 10036), "Chelsea and Clinton", "Manhattan")
+chartRegion(c(10029, 10035), "East Harlem", "Manhattan")
+chartRegion(c(10010, 10016, 10017, 10022), "Gramercy Park and Murray Hill", "Manhattan")
+chartRegion(c(10012, 10013, 10014), "Greenwich Village and Soho", "Manhattan")
+chartRegion(c(10004, 10005, 10006, 10007, 10038, 10280), "Lower Manhattan", "Manhattan")
+chartRegion(c(10002, 10003, 10009), "Lower East Side", "Manhattan")
+chartRegion(c(10002, 10003, 10009), "Upper East Side", "Manhattan")
+chartRegion(c(10023, 10024, 10025), "Upper West Side", "Manhattan")
+chartRegion(c(10031, 10032, 10033, 10034, 10040), "Inwood and Washington Heights", "Manhattan")
+```
+
+**Observations about Neighborhoods in Manhattan:**
+
+ - Central Harlem is predominantly Black
+ - Chelsea and Clinton, Gramercy Park abd Murray Hill, Greenwich Village and Soho, Lower Manhattan, Upper West Side is predominantly White
+
+```{r}
+# Queens
+
+chartRegion(c(11361, 11362, 11363, 11364), "Northeast Queens", "Queens")
+chartRegion(c(11354, 11355, 11356, 11357, 11358, 11359, 11360), "North Queens", "Queens")
+chartRegion(c(11365, 11366, 11367), "Central Queens", "Queens")
+chartRegion(c(11412, 11423, 11432, 11433, 11434, 11435, 11436), "Jamaica", "Queens")
+chartRegion(c(11101, 11102, 11103, 11104, 11105, 11106), "Northwest Queens", "Queens")
+chartRegion(c(11374, 11375, 11379, 11385), "West Central Queens", "Queens")
+chartRegion(c(11691, 11692, 11693, 11694, 11695, 11697), "Rockaways", "Queens")
+chartRegion(c(11004, 11005, 11411, 11413, 11422, 11426, 11427, 11428, 11429), "Southeast Queens", "Queens")
+chartRegion(c(11414, 11415, 11416, 11417, 11418, 11419, 11420, 11421), "Southwest Queens", "Queens")
+chartRegion(c(11368, 11369, 11370, 11372, 11373, 11377, 11378), "West Queens", "Queens")
+```
+
+**Observations about Neighborhoods in Queens:**
+
+ - West Central, Northwest Queens has much higher number of whites than other races
+ - Jamaica and South East Queens has a much higher number of blacks than other races
+
+#### Staten Island
+
+```{r}
+# Staten Island
+
+chartRegion(c(10302, 10303, 10310), "Port Richmond", "Staten Island")
+chartRegion(c(10306, 10307, 10308, 10309, 10312), "South Shore", "Staten Island")
+chartRegion(c(10301, 10304, 10305), "Stapleton and St. George", "Staten Island")
+chartRegion(c(10314), "Mid-Island", "Staten Island")
+
+```
+**Observations about Neighborhoods in Staten Island:**
+
+- Staten Island in general has a higher number of whites than other races
+- South Shore of Staten Island has very high concentration of whites compared to other races
+
+
+### NYC school segregation analysis
+
+
+#### Anaysis to find out if segregation of races is consistent with racial segregation in schools
+
+```{r}
+library(extracat)
+library(dplyr)
+library(tidyverse)
+library(choroplethrZip)
+data(zip.regions)
+# Installing packages 
+#install.packages("devtools")
+#devtools::install_github('arilamstein/choroplethrZip@v1.5.0')
+
+delim = ","  # or is it "\t" ?
+dec = "."    # or is it "," ?
+school_seg <- read.csv("/Users/meenakshizutshi/Documents/Columbia/edav/final-project/2013_-_2018_Demographic_Snapshot_School.csv", header=TRUE, sep=delim, dec=dec, stringsAsFactors=FALSE)
+
+#extract the Borough names from DBN mame parterns
+school_seg$Borough <-  
+  ifelse((substr(school_seg$DBN, 3,3) == "M"), "MANHATTAN",
+         ifelse((substr(school_seg$DBN, 3,3) == "X"), "BRONX",
+                ifelse((substr(school_seg$DBN, 3,3) == "K"), "BROOKLYN",
+                       ifelse((substr(school_seg$DBN, 3,3) == "Q"), "QUEENS",
+                              ifelse(substr(school_seg$DBN, 3,3) == "R", "STATEN IS", "something else")))))
+
+#data cleaning
+school_seg$X..Asian.1<- as.numeric(school_seg$X..Asian.1)
+school_seg$X..Black.1 <- as.numeric(school_seg$X..Black.1)
+school_seg$X..White.1 <- as.numeric(school_seg$X..White.1)
+school_seg$X..Hispanic.1 <- as.numeric(school_seg$X..Hispanic.1)
+school_seg$X..Multiple.Race.Categories.Not.Represented.1 <- as.numeric(school_seg$X..Multiple.Race.Categories.Not.Represented.1)
+
+#later use for comparisons:
+df_enrolled_students <- school_seg[,c("DBN","Year","Total.Enrollment")]
+colnames(df_enrolled_students) <- c("DBN","Year","Number_of_enrolled_students")
+
+
+```
+
+This simple bar charts shows total number of students enrolled in each Borough.
+
+```{r}
+
+school_seg$Total.Enrollment <- as.numeric(school_seg$Total.Enrollment)
+ggplot(school_seg, aes(x = Borough, y = Total.Enrollment)) + 
+  geom_bar(stat = "identity", color = "skyblue") +
+  ylab("Number of Students") +
+  labs(title = "Total number of students enrolled in each Borough")
+```
+
+Brooklyn shows higher number of students enrolled over the 5 years of 2013 - 2018 and Staten Island seems to have the lowest of the 5 boroughs.
+
+#### Percentage of students for each race
+
+We extracted few required variable to look at the percentage of enrolled students in NYC schools and plot its distribution for each race.
+
+```{r}
+
+#add few columns to total_students_by_race
+total_students_by_race <- school_seg[,c("X..Asian", "X..Black", "X..White", "X..Hispanic","X..Multiple.Race.Categories.Not.Represented")]
+colnames(total_students_by_race) <- c("Asian", "Black", "White", "Hispanic", "Other")
+tidy_data_students_per_race <- total_students_by_race %>% gather(race, number_of_students, Asian:Other)
+
+tidy_data_students_per_race %>%
+  group_by(race) %>%
+  summarise(total_pop = sum(number_of_students)) %>%
+  mutate(pop_percent = total_pop/sum(total_pop)) %>%
+  ggplot(aes(x = reorder(race, -pop_percent), pop_percent, fill = race)) +
+  xlab("") + geom_bar(stat = "identity") + 
+  ylab("Percentage of Students") + 
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "Percentage of Students for each race") 
+```
+
+The bar chart shows a higher concentration of Hispanic and Black students, which is a significant observation that impacts few observations made below as we proceed further in the analysis. 
+
+#### Race segregation in NYC schools by boroughs
+
+```{r}
+
+#add few columns to df_1
+df_1 <- school_seg[,c("DBN","Year","Borough","X..Asian.1", "X..Black.1", "X..White.1", "X..Hispanic.1","X..Multiple.Race.Categories.Not.Represented.1")]
+
+#rename column names 
+colnames(df_1) <- c("DBN","Year","Borough", "Asian", "Black", "White", "Hispanic", "Multi_race")
+
+df_2 = df_1 %>%
+  group_by(Borough) %>%
+  summarise_at(vars(Asian, Black, White, Hispanic, Multi_race), funs(sum)) 
+
+df_2$total <- apply(df_2[,2:6], 1, sum)
+
+df_3 <- df_2 %>%
+  mutate_if(is.numeric, funs(./total))
+
+#convert messy to tidy data 
+long_df <- df_3 %>% gather(race, race_proportion, Asian:Multi_race)
+
+ggplot(long_df, aes(Borough, race_proportion, fill = race)) + 
+  geom_col() + 
+  labs(title = "Race distribution by boroughs") +
+  ylab("Race proportion")
+
+```
+
+We observe the following patterns in the stacked bar chart above for analysis on different ethnicities in NYC schools for each Borough.
+
+- There seems to be a higher proportion of Hispanic students in the Bronx compared to other boroughs.
+- We also see a higher proportion of Black students in Brooklyn. Since Brooklyn has highest number of enrolled students, we can infer that Brooklyn has the highest number of Black students among all the boroughs.
+- The proportion of white students in Staten Island is significantly higher than other boroughs and the proportion of Asian students is highest in Queens among all the boroughs.
+- Queens seems to be least segregated borough in New York city and the Bronx seems be the most segregated of all the boroughs.
+
+#### Percent of schools where each race is the largest race per borough
+
+For each school we find the most common race among the enrolled students. In the chart below we compute the percentage of schools in each borough with a particular race as the most common one. With this, we are trying to see if the population of students of a particular race is concenrated in a few regions of the borough or if it is distributed more evenly. 
+
+```{r}
+
+#calculate segregation score
+get_seg_score <- function(row) {
+  colname = row["most_common_race_name"][[1]]
+  top_pct = as.numeric(row[[colname]])
+  return((top_pct * 1.25) - 25)
+}
+
+df_1$most_common_race <- apply(df_1, 1, which.max)
+df_1$most_common_race_name <- sapply(df_1[,"most_common_race"], function(x) names(df_1)[[x]])
+df_1$seg_score <- apply(df_1, 1, get_seg_score)
+
+#rename column names 
+colnames(df_1) <- c("DBN","Year","Borough", "Asian", "Black", "White", "Hispanic", "Multi_race", "most_common_race", "most_common_race_name", "Segregation_score")
+
+df_by_boro = df_1 %>%
+  group_by(Borough, most_common_race_name) 
+
+df_top_counts_by_boro = count(df_by_boro)
+
+ggplot(df_top_counts_by_boro, aes(fill=most_common_race_name, x=Borough, y=n)) + 
+  geom_bar(stat="identity", position="fill") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title="Percent of schools with most common race",
+       y="Percent of schools")
+```
+
+- A vast majority of schools in the Bronx have a higher propertion of hispanic students to other races. This implies that Hispanic students 
+are distributed through ot the Bronx.
+- In the Bronx, there are very few (if any) schools with high concentration of White and Asian students .
+- Brooklyn seems to have a uniform distribution of Black students and we also see few schools in Brooklyn have high concentration of Asian and white students.
+- White students seem to be evenly distributed in Staten Island and Hispanic students seems to concentrated in few schools.
+
+
+#### Mean Segregation score per borough and (by top race) over time
+
+In the next two plots we intend to show how segregation score changing over time, during the 5 years of data used  in the project.
+
+For this we defined a metric called `seggregation_score` to capture the level of segregation of each school in New York city. This allows us to compare different schools with different distribution of students' ethnicities. 
+`seggregation_score = prop_common - mean(prop_others) `
+where `prop_common` is the proportion of the most common race in the school
+and `prop_others` is the propertions of the other races.
+
+This can be simplfied to:
+`seggregation_score = (1.25 * prop_common) - 25`
+We know that this only considers the most common ethnicity in each school and hence does not differentiates schools based on the proportion of other ethnicities.
+
+```{r}
+#Mean Segregation score per borough over time
+df_seg_sc = df_1 %>%
+  group_by(Borough, Year) %>%
+  summarise(mean_seg_score = mean(Segregation_score)) 
+
+ggplot(df_seg_sc, aes(Year, mean_seg_score, group=Borough, color=Borough)) +
+  geom_line(size=1) +
+  labs(title = "Mean Segregation score per borough over time") +
+  ylab("Mean segregation score per Borough over time")
+
+#Mean Segregation score per by top race over time
+df_seg_sc_r = df_1 %>%
+  group_by(most_common_race_name, Year) %>%
+  summarise(mean_seg_score = mean(Segregation_score)) 
+
+ggplot(df_seg_sc_r, aes(Year, mean_seg_score, group=most_common_race_name, color=most_common_race_name)) +
+  geom_line(size=1) +
+  labs(title = "Mean Segregation score per top race over time") +
+  ylab("Mean segregation score per top race over time")
+
+```
+
+
+- Brooklyn and the Bronx have higher segregation score than other boroughs.
+- Segregation score has been decreasing over the time of 5 years for Brooklyn and Staten Island and it has not changed much for Queens and Manhattan.
+- Number of Black students entolled in schools seems to be highest compared to students of other ethnicites, but over the time of 5 years of data, segregations score for Black student has decreased.
+- Number of White and Asian students enrolled seem to be lowest among other and segregation score has not changed much for the 5 years of the data used.
+- Segregation score for Hispanic students has also not changed much during these 5 years.
+
+
+#### Race segregation analysis in NYC schools by zip code
+
+```{r}
+HOME_DIR = "/Users/meenakshizutshi/Documents/Columbia/edav/final-project/"
+school_location_2018 = read.csv2(paste(HOME_DIR, "2018_DOE_High_School_Directory.csv", sep=""), sep=",")
+school_location_2017 = read.csv2(paste(HOME_DIR, "2017_DOE_High_School_Directory.csv", sep=""), sep=",")
+school_location_2016 = read.csv2(paste(HOME_DIR, "2016_DOE_High_School_Directory.csv", sep=""), sep=",")
+school_location_2013 = read.csv2(paste(HOME_DIR, "2013_DOE_High_School_Directory.csv", sep=""), sep=",")
+middle_school_loc_2018 = read.csv2(paste(HOME_DIR, "2018_DOE_Middle_School_Directory.csv", sep=""), sep=",")
+prek_school_loc_2018 = read.csv2(paste(HOME_DIR, "2018_DOE_Pre-K_School_Directory.csv", sep=""), sep=",")
+
+a <- data.frame(school_location_2018$dbn, school_location_2018$Borough, school_location_2018$Postcode, school_location_2018$Longitude, school_location_2018$Latitude)
+colnames(a) <- c("DBN", "Borough", "Postcode", "Longitude","Latitude")
+
+b <- data.frame(school_location_2017$dbn, school_location_2017$Borough, school_location_2017$Postcode, school_location_2017$Longitude, school_location_2017$Latitude)
+colnames(b) <- c("DBN", "Borough", "Postcode", "Longitude","Latitude")
+
+c <- data.frame(school_location_2016$dbn, school_location_2016$borough, school_location_2016$Postcode, school_location_2016$Longitude, school_location_2016$Latitude)
+colnames(c) <- c("DBN", "Borough", "Postcode", "Longitude","Latitude")
+
+e <- data.frame(school_location_2013$DBN, school_location_2013$Boro , school_location_2013$Postcode, school_location_2013$longitude, school_location_2013$latitude)
+colnames(e) <- c("DBN", "Borough", "Postcode", "Longitude","Latitude")
+
+middle_school <- data.frame(middle_school_loc_2018$schooldbn, middle_school_loc_2018$Borough, middle_school_loc_2018$Postcode, middle_school_loc_2018$Longitude, middle_school_loc_2018$Latitude)
+colnames(middle_school) <- c("DBN", "Borough", "Postcode", "Longitude","Latitude")
+
+pre_school <- data.frame(prek_school_loc_2018$schooldbn, prek_school_loc_2018$borough, prek_school_loc_2018$Postcode, prek_school_loc_2018$Longitude, prek_school_loc_2018$Latitude)
+colnames(pre_school) <- c("DBN", "Borough", "Postcode", "Longitude","Latitude")
+
+all_rows <- bind_rows(a,b,c,e, middle_school, pre_school)
+all_rows_for_dbn <- distinct(all_rows, DBN, .keep_all= TRUE)
+
+df_with_zips <- left_join(df_1, all_rows_for_dbn, by = "DBN")
+df_with_zips <- df_with_zips[complete.cases(df_with_zips),]
+```
+
+The Choropleth map below shows the racial segregation of NYC schools by zip code for the 5 years of data.
+
+```{r}
+
+# Race segregation analysis in NYC schools by zip code for 5 years data 2013-2018
+df_seg_score <- df_with_zips[, c("Postcode", "Segregation_score")]
+
+df_seg_score <- df_seg_score %>%
+  group_by(Postcode) %>%
+  summarise(mean_seg_score = mean(Segregation_score))
+
+colnames(df_seg_score) <- c("region", "value")
+
+df_seg_score$region <- as.character(df_seg_score$region)
+
+valid_zips = intersect(df_seg_score$region, zip.regions$region)
+
+zip_choropleth(df_seg_score,
+               zip_zoom = c(valid_zips),
+               title = "Segregation Score by Zip-Code",
+               legend = "Segregation Score")
+```
+
+
+Zip codes with highest segregations score seems to be highly clustered in few regions on the above map.
+
+### Most segregated schools in NYC
+
+```{r}
+
+top_seg_scores <- top_n(df_seg_score, 10, value)
+bottom_seg_scores <- top_n(df_seg_score, -10, value)
+#clean up the legend and make it more meaningfull
+top_seg_scores$value <- 1
+bottom_seg_scores$value <- 1
+
+zip_choropleth(top_seg_scores,
+               zip_zoom = c(valid_zips),
+               title = "Top 10 most segregated zip codes",
+               legend = "Segregation Score") +
+  scale_fill_discrete(na.value = "white")
+
+zip_choropleth(bottom_seg_scores,
+               zip_zoom = c(valid_zips),
+               title = "Top 10 least segregated zip codes",
+               legend = "Segregation Score") +
+  scale_fill_discrete(na.value = "white")
+
+```
+
+- Top 10 most segregated zip codes are closely clustered in 4 clusters as shown above. This could mean that there are certain areas where segregation is high, which could be a result of underlying population segregation.
+- In the second map, we see that the top 10 least segregated zip codes are more distributed.
+
+### Most common race by zip code in a choropleth 
+
+```{r}
+df_top_most_race_1 <- left_join(school_seg, all_rows_for_dbn, by = "DBN")
+df_top_most_race_1 <- df_top_most_race_1[complete.cases(df_top_most_race_1),]
+
+df_top_most_race_2 <- df_top_most_race_1[,c("DBN","Postcode","X..Asian", "X..Black", "X..White", "X..Hispanic","X..Multiple.Race.Categories.Not.Represented")]
+
+colnames(df_top_most_race_2) <- c("DBN", "Postcode", "Asian", "Black", "White", "Hispanic", "Multi_race")
+
+df_top_most_race_3 <- df_top_most_race_2 %>%
+  group_by(Postcode) %>%
+  summarise_if(is.numeric, funs(sum))
+
+df_top_most_race_3$most_common_race <- apply(subset(df_top_most_race_3, select=-c(Postcode)), 1, which.max) + 1
+
+df_top_most_race_3$most_common_race <- apply(df_top_most_race_3[,"most_common_race"], 1, function(x) names(df_top_most_race_3)[[x]])
+
+df_top_race <- df_top_most_race_3[, c("Postcode", "most_common_race")]
+
+colnames(df_top_race) <- c("region", "value")
+
+df_top_race$region <- as.character(df_top_race$region)
+
+valid_zips = intersect(df_top_race$region, zip.regions$region)
+
+zip_choropleth(df_top_race,
+               zip_zoom = c(valid_zips),
+               title = "Most common race by zip codes",
+               legend = "Most Common race") +
+  scale_fill_discrete()
+
+```
+
+All ethnicites seems to be highly clustered in the map above which could be due to the underlying population being clustered along racial lines. `It is very surprising to see such contiguous clusters with the same race being the most common one`.
+
+#### Analysis on students enrolled in NYC schools by zip code 
+
+Following two plots show the consistency between NYC schools enrollment with underlying population which has been plotted above under the first section of this project under the name `Distribution of Races by Zip Code`. The second plot specifically shows the school enrollment for the year of 2017, which shows that the highly populated areas have higher number of students enrolled to the schools.
+
+```{r}
+
+##5 years
+df_with_zips_students <- left_join(df_enrolled_students, all_rows_for_dbn, by = "DBN")
+df_with_zips_students <- df_with_zips_students[complete.cases(df_with_zips_students),]
+df_with_zips_students <- df_with_zips_students[, c("Postcode", "Number_of_enrolled_students")]
+
+df_students <- df_with_zips_students %>%
+  group_by(Postcode) %>%
+  summarise(sum_students = sum(Number_of_enrolled_students))
+
+colnames(df_students) <- c("region", "value")
+df_students$region <- as.character(df_students$region)
+valid_zips_students= intersect(df_students$region, zip.regions$region)
+
+zip_choropleth(df_students,
+               zip_zoom = c(valid_zips_students),
+               title = "Total enrolled students by Zip-Code",
+               legend = "Total enrolled students")
+
+### Analysis on students enrolled in NYC schools by zip code  for 2017 data
+enrollment_df_2017 = subset(df_enrolled_students, Year == "2017-18")
+df_with_zips_2017_subset <- left_join(enrollment_df_2017, all_rows_for_dbn, by = "DBN")
+df_with_zips_2017_subset <- df_with_zips_2017_subset[complete.cases(df_with_zips_2017_subset),]
+df_enrolled_students_2017 <- df_with_zips_2017_subset[, c("Postcode", "Number_of_enrolled_students")]
+
+df_students_2017 <- df_enrolled_students_2017 %>%
+  group_by(Postcode) %>%
+  summarise(sum_students = sum(Number_of_enrolled_students))
+
+colnames(df_students_2017) <- c("region", "value")
+df_students_2017$region <- as.character(df_students_2017$region)
+valid_zips_2017 = intersect(df_students_2017$region, zip.regions$region)
+
+zip_choropleth(df_students_2017,
+               zip_zoom = c(valid_zips_2017),
+               title = "Total enrolled students by Zip-Code for 2017",
+               legend = "Total enrolled students")
+
+```
+
+
+#### Relation between Poverty percentage and segregation score in NYC schools
+
+Poverty is worth considering when talking about school diversity.
+
+```{r}
+df_with_economy <- left_join(school_seg, all_rows_for_dbn, by = "DBN")
+df_with_economy <- df_with_economy[complete.cases(df_with_economy),]
+df_with_economy$X..Poverty.1 <- as.numeric(df_with_economy$X..Poverty.1)
+
+df_with_economy <- df_with_economy[,c("DBN","Postcode","X..Poverty.1","X..Asian.1", "X..Black.1", "X..White.1", "X..Hispanic.1","X..Multiple.Race.Categories.Not.Represented.1")]
+
+colnames(df_with_economy) <- c("DBN", "Postcode", "Poverty_pct", "Asian", "Black", "White", "Hispanic", "Multi_race")
+
+df_with_economy$most_common_race <- apply(subset(df_with_economy, select=-c(Postcode, Poverty_pct)), 1, which.max) + 2
+
+df_with_economy$most_common_race_name <- sapply(df_with_economy[,"most_common_race"], function(x) names(df_with_economy)[[x]])
+
+df_with_economy$seg_score <- apply(df_with_economy, 1, get_seg_score)
+
+ggplot(df_with_economy, aes(Poverty_pct, seg_score, color = most_common_race_name)) +
+  geom_point() +
+  xlab("Poverty percentage") +
+  ylab("Segregation score") +
+  labs(title = "Poverty percentage vs Segregation score")
+
+```
+
+We observe Black and Hispanic students are much more likely to attend a school where more than 75% of students experience poverty.
+
+#### Relation betwen Economic need index and segregation score
+
+Following plot shows a similar pattern as above, we observe higher economic need index for Black and Hispanic students in NYC over the 5 years of data.
+
+```{r}
+df_with_economy_in <- left_join(school_seg, all_rows_for_dbn, by = "DBN")
+df_with_economy_in <- df_with_economy_in[complete.cases(df_with_economy_in),]
+df_with_economy_in <- df_with_economy_in[,c("DBN","Postcode","Economic.Need.Index","X..Asian.1", "X..Black.1", "X..White.1", "X..Hispanic.1","X..Multiple.Race.Categories.Not.Represented.1")]
+
+colnames(df_with_economy_in) <- c("DBN", "Postcode", "Economic_need", "Asian", "Black", "White", "Hispanic", "Multi_race")
+df_with_economy_in = filter(df_with_economy_in, Economic_need != "No Data")
+df_with_economy_in$Economic_need <- as.numeric(gsub("%", "", df_with_economy_in$Economic_need))
+df_with_economy_in$most_common_race <- apply(subset(df_with_economy_in, select=-c(Postcode, Economic_need)), 1, which.max) + 2
+df_with_economy_in$most_common_race_name <- sapply(df_with_economy_in[,"most_common_race"], function(x) names(df_with_economy_in)[[x]])
+df_with_economy_in$seg_score <- apply(df_with_economy_in, 1, get_seg_score)
+
+ggplot(df_with_economy_in, aes(Economic_need, seg_score, color = most_common_race_name)) +
+  geom_point() +
+  xlab("Economic need index") +
+  ylab("Segregation score") +
+  labs(title = "Economic need index vs Segregation score")
+
+```
+
+## Conclusion:
+
+- We were able to identify regions in NYC where there were very high concentrations of particular races in comparison to others.
+- Overall all areas have some representation from atleast 2 races as we did not find a single zip code with representation from only one race.
+- There is a good consistency between NYC schools enrollment with underlying population. For comparision between overall population and schools enrollments for 2017, we see highly populated areas have higher number of students enrolled to schools.
+- All ethnicites seems to be highly clustered in the Choropleth map above for NYC school enrollments, which could be due to the underlying population being clustered along racial lines. It is very surprising to see such contiguous clusters with the same race being the most common one.
+
+## github link:
+
+https://github.com/dcd2139/edav_final_project
+
+## References:
+ 
+https://dlab.berkeley.edu/sites/default/files/training_materials/Census_Lecture_030915.pdf
+https://rdrr.io/cran/choroplethr/man/county_choropleth_acs.html
+https://arilamstein.com/creating-zip-code-choropleths-choroplethrzip/
+https://www.trulia.com/blog/tech/the-choroplethr-package-for-r/
