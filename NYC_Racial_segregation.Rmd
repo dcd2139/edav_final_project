@@ -554,7 +554,7 @@ ggplot(df_top_counts_by_boro, aes(fill=most_common_race_name, x=Borough, y=n)) +
 ```
 
 - A vast majority of schools in the Bronx have a higher propertion of hispanic students to other races. This implies that Hispanic students 
-are distributed through ot the Bronx.
+are distributed through out the Bronx.
 - In the Bronx, there are very few (if any) schools with high concentration of White and Asian students .
 - Brooklyn seems to have a uniform distribution of Black students and we also see few schools in Brooklyn have high concentration of Asian and white students.
 - White students seem to be evenly distributed in Staten Island and Hispanic students seems to concentrated in few schools.
@@ -599,9 +599,9 @@ ggplot(df_seg_sc_r, aes(Year, mean_seg_score, group=most_common_race_name, color
 
 - Brooklyn and the Bronx have higher segregation score than other boroughs.
 - Segregation score has been decreasing over the time of 5 years for Brooklyn and Staten Island and it has not changed much for Queens and Manhattan.
-- Number of Black students entolled in schools seems to be highest compared to students of other ethnicites, but over the time of 5 years of data, segregations score for Black student has decreased.
-- Number of White and Asian students enrolled seem to be lowest among other and segregation score has not changed much for the 5 years of the data used.
-- Segregation score for Hispanic students has also not changed much during these 5 years.
+- Schools where black students are the most common, the mean segregation score is much higher compared to other races. This could mean in schools where the proportion of Black students is the highest, the distribution of students is more skewed than schools where the proportion of Asian or White students is the highest.
+- A similar pattern is also found in schools where hispanic students are the most common.
+- We observe that for schools with Black, White or Asian students as the most common, the mean segregation score is decreasing over time. However, for schools with Hispanic students are the most common, the segregation score has remained more or less constant over time.
 
 
 #### Race segregation analysis in NYC schools by zip code
@@ -727,7 +727,7 @@ zip_choropleth(df_top_race,
 
 ```
 
-All ethnicites seems to be highly clustered in the map above which could be due to the underlying population being clustered along racial lines. `It is very surprising to see such contiguous clusters with the same race being the most common one`.
+All ethnicities seems to be highly clustered in the map above which could be due to the underlying population being clustered along racial lines. `It is very surprising to see such contiguous clusters with the same race being the most common one`.
 
 #### Analysis on students enrolled in NYC schools by zip code 
 
@@ -802,11 +802,13 @@ ggplot(df_with_economy, aes(Poverty_pct, seg_score, color = most_common_race_nam
 
 ```
 
-We observe Black and Hispanic students are much more likely to attend a school where more than 75% of students experience poverty.
+- We observe Black and Hispanic students are much more likely to attend a school where more than 75% of students experience poverty.
+- The schools with the least poverty percentage do not have a very high rate of segregation. Only schools in which a greater percentage of students are in poverty, have very high segregation.
+- Also, in schools where the average poverty percentage is low, the most common ethnicity of students is overwhelmingly white. There are also very few schools with a high proportion of Black students and a low poverty percent. This could be a reflection on differences in the distribution of wealth among people of different races.
 
 #### Relation betwen Economic need index and segregation score
 
-Following plot shows a similar pattern as above, we observe higher economic need index for Black and Hispanic students in NYC over the 5 years of data.
+Following plot shows a similar pattern as above, we observe higher economic need index for Black and Hispanic students in NYC over the 5 years of data. 
 
 ```{r}
 df_with_economy_in <- left_join(school_seg, all_rows_for_dbn, by = "DBN")
@@ -833,7 +835,7 @@ ggplot(df_with_economy_in, aes(Economic_need, seg_score, color = most_common_rac
 - We were able to identify regions in NYC where there were very high concentrations of particular races in comparison to others.
 - Overall all areas have some representation from atleast 2 races as we did not find a single zip code with representation from only one race.
 - There is a good consistency between NYC schools enrollment with underlying population. For comparision between overall population and schools enrollments for 2017, we see highly populated areas have higher number of students enrolled to schools.
-- All ethnicites seems to be highly clustered in the Choropleth map above for NYC school enrollments, which could be due to the underlying population being clustered along racial lines. It is very surprising to see such contiguous clusters with the same race being the most common one.
+- All ethnicities seems to be highly clustered in the Choropleth map above for NYC school enrollments, which could be due to the underlying population being clustered along racial lines. It is very surprising to see such contiguous clusters with the same race being the most common one.
 
 ## github link:
 
