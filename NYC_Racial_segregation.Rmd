@@ -27,7 +27,7 @@ We found multiple datasets are available for demographic and race data. We chose
 
 1. US Government Census data includes data uptil 2018 regarding race and ethnicity by county and zipcode
 
-- American Community Survey
+**American Community Survey**
 
 https://data.census.gov/cedsci/profile?g=0400000US36&q=New%20York
 
@@ -47,9 +47,9 @@ The ACS data contains population numbers for the following races
 
 2. DOE New York City schools demographic data between 2013-2018 
 
-- https://data.cityofnewyork.us/Education/2013-2018-Demographic-Snapshot-School/s52a-8aq6
+https://data.cityofnewyork.us/Education/2013-2018-Demographic-Snapshot-School/s52a-8aq6
 
-To analyze how segregated are NYC schools among the zip codes, below datasets were jonned with the demographic dataset, to source the zip codes for each school.
+To analyze how segregated are NYC schools among the zip codes, below datasets were joined with the demographic dataset, to source the zip codes for each school.
 
 - https://data.cityofnewyork.us/Education/DOE-High-School-Directory-2013-2014/u553-m549
 - https://data.cityofnewyork.us/Education/2016-DOE-High-School-Directory/7crd-d9xh
@@ -370,6 +370,8 @@ chartRegion(c(10031, 10032, 10033, 10034, 10040), "Inwood and Washington Heights
  - Central Harlem is predominantly Black
  - Chelsea and Clinton, Gramercy Park abd Murray Hill, Greenwich Village and Soho, Lower Manhattan, Upper West Side is predominantly White
 
+#### Queens
+
 ```{r}
 # Queens
 
@@ -564,13 +566,13 @@ are distributed through out the Bronx.
 
 In the next two plots we intend to show how segregation score changing over time, during the 5 years of data used  in the project.
 
-For this we defined a metric called `seggregation_score` to capture the level of segregation of each school in New York city. This allows us to compare different schools with different distribution of students' ethnicities. 
-`seggregation_score = prop_common - mean(prop_others) `
+For this we defined a metric called `segregation_score` to capture the level of segregation of each school in New York city. This allows us to compare different schools with different distribution of students' ethnicities. 
+`segregation_score = prop_common - mean(prop_others) `
 where `prop_common` is the proportion of the most common race in the school
 and `prop_others` is the propertions of the other races.
 
 This can be simplfied to:
-`seggregation_score = (1.25 * prop_common) - 25`
+`segregation_score = (1.25 * prop_common) - 25`
 We know that this only considers the most common ethnicity in each school and hence does not differentiates schools based on the proportion of other ethnicities.
 
 ```{r}
@@ -775,9 +777,9 @@ zip_choropleth(df_students_2017,
 ```
 
 
-#### Relation between Poverty percentage and segregation score in NYC schools
+### Additional factors driving the racial segregation in New York city
 
-Poverty is worth considering when talking about school diversity.
+We considered looking at the relationship between Poverty percentage and segregation score in NYC schools, as poverty is worth considering when talking about school diversity. We also looked at the relationship between economic need index and segregation score.
 
 ```{r}
 df_with_economy <- left_join(school_seg, all_rows_for_dbn, by = "DBN")
